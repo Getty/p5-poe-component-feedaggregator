@@ -34,6 +34,7 @@ event feed_received => sub {
 	my ( $self, $kernel, @args ) = @_[ OBJECT, KERNEL, ARG0..$#_ ];
 	my $http_request = $args[0];
 	my $xml_feed = $args[1];
+	return if !(ref $xml_feed);
 	my $feed = $args[2];
 	my $cache_file = $self->tmpdir.'/'.$feed->name.'.feedcache';
 	my @entries;
