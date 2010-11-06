@@ -42,11 +42,4 @@ has max_headlines => (
 	default => sub { 100 },
 );
 
-has headline_as_id => (
-	isa => 'Bool',
-	is => 'ro',
-	required => 1,
-	default => sub { 1 },
-);
-
 1;

@@ -27,13 +27,13 @@ SKIP: {
 		event new_feed_entry => sub {
 			my ( $self, $feed, $entry ) = @_[ OBJECT, ARG0..$#_ ];
 			::isa_ok($feed, "POE::Component::FeedAggregator::Feed", "Getting POE::Component::FeedAggregator::Feed object as first arg on new feed entry");
-			if ($feed->name eq 'rss') {
-				::isa_ok($entry, "XML::Feed::Entry::Format::RSS", "XML::Feed::Entry::Format::RSS object as second arg on new feed entry");
-			} elsif ($feed->name eq 'atom') {
-				::isa_ok($entry, "XML::Feed::Entry::Format::Atom", "XML::Feed::Entry::Format::Atom object as second arg on new feed entry");
-			}
+			::isa_ok($entry, "XML::Feed::Entry::Format::Atom", "XML::Feed::Entry::Format::Atom object as second arg on new feed entry");
 			$cnt++;
-			POE::Kernel->stop if $cnt == 42;
+		};
+
+		event stop_that_peepeeness => sub {
+			my ( $self, $kernel ) = @_[ OBJECT, KERNEL ];
+			$kernel->stop;
 		};
 		
 		has 'server' => (
@@ -57,14 +57,6 @@ SKIP: {
 						$response->content_type('application/xhtml+xml');
 						return RC_OK;
 					},
-					'/rss' => sub { 
-						my ($request, $response) = @_;
-						$response->code(RC_OK);
-						my $content = slurp( catfile( $path, "rss.xml" ) );
-						$response->content( $content );
-						$response->content_type('application/xhtml+xml');
-						return RC_OK;
-					},
 				},
 				Headers => { Server => 'FeedServer' },
 			));
@@ -72,16 +64,11 @@ SKIP: {
 			::isa_ok($self->client, "POE::Component::FeedAggregator", "Getting POE::Component::FeedAggregator object on new");
 			$self->client->add_feed({
 				url => 'http://localhost:'.$port.'/atom',
-				name => '01-atom',
-				delay => 10,
+				name => '02-atom',
+				delay => 2,
 				headline_as_id => 1,
 			});
-			$self->client->add_feed({
-				url => 'http://localhost:'.$port.'/rss',
-				name => '01-rss',
-				delay => 10,
-				headline_as_id => 1,
-			});
+			$kernel->delay('stop_that_peepeeness', 10);
 		}
 
 	}
@@ -90,13 +77,10 @@ SKIP: {
 
 	POE::Kernel->run;
 
-	is($cnt,42,'42 entries are received');
-	
-	ok(-f $test->client->tmpdir.'/01-atom.feedcache', "01-atom Cachefile exist");
-	unlink $test->client->tmpdir.'/01-atom.feedcache';
-	ok(-f $test->client->tmpdir.'/01-rss.feedcache', "01-rss Cachefile exist");
-	unlink $test->client->tmpdir.'/01-rss.feedcache';
+	is($cnt,21,'21 entries are only received after 10 seconds (which are probably 4-5 feed checks)');
 
+	ok(-f $test->client->tmpdir.'/02-atom.feedcache', "02-atom Cachefile exist");
+	unlink $test->client->tmpdir.'/02-atom.feedcache';
 }
 
 done_testing;

@@ -7,6 +7,7 @@ use POE qw(
 	Component::Client::Feed
 );
 use Cwd;
+use IO::All;
 
 our $VERSION ||= '0.0development';
 
@@ -34,9 +35,30 @@ event feed_received => sub {
 	my $http_request = $args[0];
 	my $xml_feed = $args[1];
 	my $feed = $args[2];
-	for my $entry ($xml_feed->entries) {
-		POE::Kernel->post( $feed->sender, $feed->entry_event, $feed, $entry );
+	my $cache_file = $self->tmpdir.'/'.$feed->name.'.feedcache';
+	my @entries;
+	if (-f $cache_file) {
+		@entries = io($cache_file)->slurp;
 	}
+	my @new_entries;
+	for my $entry ($xml_feed->entries) {
+		my $link = $entry->link;
+		my $title = $entry->title;
+		my $known = 0;
+		for (@entries) {
+			chomp;
+			if ( $_ =~ m/^(.+?) (.+)$/ ) {
+				if ( $1 eq $link || $2 eq $title ) {
+					$known = 1;
+					last; 
+				}
+			}
+		}
+		next if $known;
+		push @new_entries, $link.' '.$title;
+		$kernel->post( $feed->sender, $feed->entry_event, $feed, $entry ) if !$known;
+	}
+	scalar join("\n",@entries,@new_entries) > io($cache_file);
 	$kernel->delay( 'request_feed', $feed->delay, $feed );
 };
 
@@ -85,7 +107,6 @@ __END__
       url => 'http://news.perlfoundation.org/atom.xml', # required
       name => 'perlfoundation',                         # required
       delay => 1200,                                    # default value
-      headline_as_id => 1,                              # default value
 	  entry_event => 'new_feed_entry',                  # default value
     });
   }
