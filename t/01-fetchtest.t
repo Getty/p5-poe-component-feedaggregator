@@ -44,6 +44,11 @@ SKIP: {
 			is => 'rw',
 		);
 
+		sub BUILD {
+			my ( $self ) = @_;
+			$self->client(POE::Component::FeedAggregator->new());
+		}
+		
 		sub START {
 			my ( $self, $kernel, $session ) = @_[ OBJECT, KERNEL, SESSION ];
 			$self->server(POE::Component::Server::HTTP->new(
@@ -68,25 +73,24 @@ SKIP: {
 				},
 				Headers => { Server => 'FeedServer' },
 			));
-			$self->client(POE::Component::FeedAggregator->new());
 			::isa_ok($self->client, "POE::Component::FeedAggregator", "Getting POE::Component::FeedAggregator object on new");
 			$self->client->add_feed({
 				url => 'http://localhost:'.$port.'/atom',
 				name => '01-atom',
 				delay => 10,
-				headline_as_id => 1,
 			});
 			$self->client->add_feed({
 				url => 'http://localhost:'.$port.'/rss',
 				name => '01-rss',
 				delay => 10,
-				headline_as_id => 1,
 			});
 		}
 
 	}
-
+	
 	my $test = Test::PoCoFeAg::Example->new();
+	unlink $test->client->tmpdir.'/01-atom.feedcache' if (-f $test->client->tmpdir.'/01-atom.feedcache');
+	unlink $test->client->tmpdir.'/01-rss.feedcache' if (-f $test->client->tmpdir.'/01-rss.feedcache');
 
 	POE::Kernel->run;
 

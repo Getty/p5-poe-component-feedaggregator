@@ -58,7 +58,10 @@ event feed_received => sub {
 		push @new_entries, $link.' '.$title;
 		$kernel->post( $feed->sender, $feed->entry_event, $feed, $entry ) if !$known;
 	}
-	scalar join("\n",@entries,@new_entries) > io($cache_file);
+	push @entries, @new_entries;
+	my $count = @entries;
+	my @save_entries = splice(@entries, $count - $feed->max_headlines > 0 ? $count - $feed->max_headlines : 0, $feed->max_headlines);
+	scalar join("\n",@save_entries) > io($cache_file);
 	$kernel->delay( 'request_feed', $feed->delay, $feed );
 };
 
