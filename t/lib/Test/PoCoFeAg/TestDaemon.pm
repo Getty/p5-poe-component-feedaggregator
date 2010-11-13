@@ -32,6 +32,11 @@ event new_feed_entry_counttest => sub {
 	POE::Kernel->stop if $self->cnt == 21;
 };
 
+event new_feed_entry_ignoretest => sub {
+	my ( $self, $feed, $entry ) = @_[ OBJECT, ARG0..$#_ ];
+	$self->cnt_inc;
+};
+
 event stop_that_peepeeness => sub {
 	my ( $self, $kernel ) = @_[ OBJECT, KERNEL ];
 	$kernel->stop;
@@ -83,12 +88,14 @@ sub START {
 			name => '01-atom',
 			delay => 10,
 			entry_event => 'new_feed_entry_'.$self->test,
+			ignore_first => 0,
 		});
 		$self->client->add_feed({
 			url => 'http://localhost:'.$self->port.'/rss',
 			name => '01-rss',
 			delay => 10,
 			entry_event => 'new_feed_entry_'.$self->test,
+			ignore_first => 0,
 		});
 	} elsif ($self->test eq 'knowntest') {
 		$self->client->add_feed({
@@ -96,6 +103,7 @@ sub START {
 			name => '02-atom',
 			delay => 2,
 			entry_event => 'new_feed_entry_'.$self->test,
+			ignore_first => 0,
 		});
 		$kernel->delay('stop_that_peepeeness', 10);
 	} elsif ($self->test eq 'counttest') {
@@ -105,7 +113,16 @@ sub START {
 			delay => 10,
 			max_headlines => 10,
 			entry_event => 'new_feed_entry_'.$self->test,
+			ignore_first => 0,
 		});
+	} elsif ($self->test eq 'ignoretest') {
+		$self->client->add_feed({
+			url => 'http://localhost:'.$self->port.'/atom',
+			name => '04-atom',
+			delay => 2,
+			entry_event => 'new_feed_entry_'.$self->test,
+		});
+		$kernel->delay('stop_that_peepeeness', 10);
 	}
 }
 

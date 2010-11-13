@@ -19,6 +19,19 @@ has name => (
 	isa => 'Str',
 	is => 'ro',
 	required => 1,
+	default => sub {
+		my $self = shift;
+		my $name = $self->url;
+		$name =~ s/\W/_/g;
+		return $name;
+	},
+);
+
+has ignore_first => (
+	isa => 'Bool',
+	is => 'ro',
+	required => 1,
+	default => sub { 1 },
 );
 
 has delay => (

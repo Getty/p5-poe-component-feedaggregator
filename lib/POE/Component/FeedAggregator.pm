@@ -38,8 +38,11 @@ event feed_received => sub {
 	my $feed = $args[2];
 	my $cache_file = $self->tmpdir.'/'.$feed->name.'.feedcache';
 	my @entries;
+	my $ignore = 0;
 	if (-f $cache_file) {
 		@entries = io($cache_file)->slurp;
+	} else {
+		$ignore = $feed->ignore_first;
 	}
 	my @new_entries;
 	for my $entry ($xml_feed->entries) {
@@ -57,7 +60,7 @@ event feed_received => sub {
 		}
 		next if $known;
 		push @new_entries, $link.' '.$title;
-		$kernel->post( $feed->sender, $feed->entry_event, $feed, $entry ) if !$known;
+		$kernel->post( $feed->sender, $feed->entry_event, $feed, $entry ) if (!$known and !$ignore);
 	}
 	push @entries, @new_entries;
 	my $count = @entries;
