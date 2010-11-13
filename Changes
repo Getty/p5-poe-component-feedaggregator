@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.006     2010-11-13 23:58:18 Europe/Berlin
 	- Added automatic generation of name out of url (1:1 translation into a filename-friendly string)
 	- Added the ignore_first feature for feeds that are not cached so far
 
