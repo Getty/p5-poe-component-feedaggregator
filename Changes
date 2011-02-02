@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.008     2011-02-02 19:24:33 Europe/Berlin
 	- Fixed a problem about urls with no spaces (hardcore removing them)
 
 0.007     2010-11-14 05:23:54 Europe/Berlin
