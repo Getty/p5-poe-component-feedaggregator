@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+	- Fixed a problem about urls with no spaces (hardcore removing them)
 
 0.007     2010-11-14 05:23:54 Europe/Berlin
 	- Hups, fixed requirements

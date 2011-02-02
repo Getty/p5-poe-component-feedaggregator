@@ -48,6 +48,7 @@ event feed_received => sub {
 	for my $entry ($xml_feed->entries) {
 		my $link = $entry->link;
 		my $title = $entry->title;
+		$link =~ s/ //g;
 		my $known = 0;
 		for (@entries) {
 			chomp;
