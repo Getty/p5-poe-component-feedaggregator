@@ -33,9 +33,10 @@ has tmpdir => (
 event feed_received => sub {
 	my ( $self, $kernel, @args ) = @_[ OBJECT, KERNEL, ARG0..$#_ ];
 	my $http_request = $args[0];
+	my $feed = $args[2];
+	$kernel->delay( 'request_feed', $feed->delay, $feed );
 	my $xml_feed = $args[1];
 	return if !(ref $xml_feed);
-	my $feed = $args[2];
 	my $cache_file = $self->tmpdir.'/'.$feed->name.'.feedcache';
 	my @entries;
 	my $ignore = 0;
@@ -67,7 +68,6 @@ event feed_received => sub {
 	my $count = @entries;
 	my @save_entries = splice(@entries, $count - $feed->max_headlines > 0 ? $count - $feed->max_headlines : 0, $feed->max_headlines);
 	scalar join("\n",@save_entries) > io($cache_file);
-	$kernel->delay( 'request_feed', $feed->delay, $feed );
 };
 
 event request_feed => sub {
@@ -75,9 +75,7 @@ event request_feed => sub {
 	$self->feed_client->yield('request',$feed->url,'feed_received',$feed);
 };
 
-sub add_feed {
-	shift->yield('_add_feed', @_);
-}
+sub add_feed { shift->yield('_add_feed', @_); }
 
 event _add_feed => sub {
 	my ( $self, $sender, $feed_args ) = @_[ OBJECT, SENDER, ARG0..$#_ ];
@@ -119,10 +117,6 @@ __END__
     });
   }
 
-=head1 DESCRIPTION
-
-This POE Component works a bit like L<POE::Component::RSSAggregator>. More info soon...
-
 =head1 SEE ALSO
 
 =for :list
@@ -130,4 +124,3 @@ This POE Component works a bit like L<POE::Component::RSSAggregator>. More info 
 * L<POE::Component::FeedAggregator::Feed>
 * L<XML::Feed>
 * L<MooseX::POE>
-* L<POE::Component::RSSAggregator>
