@@ -12,8 +12,16 @@ use IO::All;
 our $VERSION ||= '0.0development';
 
 has logger => (
+	isa => 'Object',
 	is => 'rw',
 	predicate => 'has_logger',
+);
+
+has http_agent => (
+	is => 'ro',
+	isa => 'Str',
+	required => 1,
+	default => sub { __PACKAGE__.'/'.$VERSION },
 );
 
 has feed_client => (
@@ -24,10 +32,16 @@ has feed_client => (
 	default => sub {
 		my $self = shift;
 		$self->logger->info($self->logger_prefix.'Starting up POE::Component::Client::Feed') if $self->has_logger;
-		POE::Component::Client::Feed->new({
-			http_agent => __PACKAGE__.'/'.$VERSION,
-			logger   => $self->logger,
-		});
+		if ($self->has_logger) {
+			POE::Component::Client::Feed->new({
+				http_agent => $self->http_agent,
+				logger   => $self->logger,
+			});
+		} else {
+			POE::Component::Client::Feed->new({
+				http_agent => $self->http_agent,
+			});
+		}
 	},
 );
 
