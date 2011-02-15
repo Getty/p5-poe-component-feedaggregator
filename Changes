@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+	- Added logger docking capability
 
 0.900     2011-02-08 02:29:24 Europe/Berlin
 	- Fixed a fundamental bug about breaking event chain on failing feed parsing
