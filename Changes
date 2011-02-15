@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.902     2011-02-15 17:08:50 Europe/Berlin
 	- Today we learned about ->delay and ->delay_add (dngor++)
 
 0.901     2011-02-15 06:55:27 Europe/Berlin
