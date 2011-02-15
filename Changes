@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.901     2011-02-15 06:55:27 Europe/Berlin
 	- Added logger docking capability
 	- Added http_agent attribute
 
