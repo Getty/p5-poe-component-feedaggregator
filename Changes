@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+	- Today we learned about ->delay and ->delay_add (dngor++)
 
 0.901     2011-02-15 06:55:27 Europe/Berlin
 	- Added logger docking capability
